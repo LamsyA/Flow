@@ -15,6 +15,5 @@ transaction() {
   }
 
   execute {
-    // The execute phase is currently empty
   }
 }

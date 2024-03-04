@@ -5,32 +5,32 @@ import NewToken from 0x05
 transaction(senderAccount: Address, amount: UFix64) {
 
     // Define references
-    let senderVault: &NewToken.Vault{NewToken.PublicCollection} // Reference to the sender's NewToken vault
-    let signerVault: &NewToken.Vault // Reference to the signer's NewToken vault
-    let senderFlowVault: &FlowToken.Vault{FungibleToken.Balance, FungibleToken.Receiver, FungibleToken.Provider} // Reference to the sender's FlowToken vault
-    let adminResource: &NewToken.Admin // Reference to the NewToken admin resource
-    let flowMinter: &FlowToken.Minter // Reference to the FlowToken minter
+    let senderVault: &NewToken.Vault{NewToken.PublicCollection}
+    let signerVault: &NewToken.Vault
+    let senderFlowVault: &FlowToken.Vault{FungibleToken.Balance, FungibleToken.Receiver, FungibleToken.Provider}
+    let adminResource: &NewToken.Admin
+    let flowMinter: &FlowToken.Minter
 
     prepare(acct: AuthAccount) {
         // Borrow references and handle errors
         self.adminResource = acct.borrow<&NewToken.Admin>(from: /storage/AdminStorage)
-            ?? panic("Failed to retrieve the admin resource")
+            ?? panic("Failed to borrow Admin Resource")
 
         self.signerVault = acct.borrow<&NewToken.Vault>(from: /storage/VaultStorage)
-            ?? panic("Failed to retrieve the signer's vault")
+            ?? panic("Signer's Vault not found")
 
         self.senderVault = getAccount(senderAccount)
             .getCapability(/public/Vault)
             .borrow<&NewToken.Vault{NewToken.PublicCollection}>()
-            ?? panic("Failed to retrieve the sender's vault")
+            ?? panic("Sender's Vault not found")
 
         self.senderFlowVault = getAccount(senderAccount)
             .getCapability(/public/FlowVault)
             .borrow<&FlowToken.Vault{FungibleToken.Balance, FungibleToken.Receiver, FungibleToken.Provider }>()
-            ?? panic("Failed to retrieve the sender's FlowToken vault")
+            ?? panic("Sender's Flow Vault not found")
 
         self.flowMinter = acct.borrow<&FlowToken.Minter>(from: /storage/FlowMinter)
-            ?? panic("Failed to retrieve the FlowToken minter")
+            ?? panic("Minter not found")
     }
 
     execute {
@@ -47,6 +47,6 @@ transaction(senderAccount: Address, amount: UFix64) {
         self.senderFlowVault.deposit(from: <-newFlowVault)
         
         // Log completion message
-        log("Transaction completed successfully")
+        log("Transaction completed successfully!")
     }
 }

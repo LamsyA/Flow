@@ -2,31 +2,31 @@ import FungibleToken from 0x05
 import FlowToken from 0x05
 
 // Transaction to create a new FlowToken minter
-transaction (allowedAmount: UFix64) {
-    // Reference to the FlowToken Administrator resource
-    let administratorRef: &FlowToken.Administrator
+transaction (_allowedAmount: UFix64){
+    // Declare a reference to the FlowToken Administrator resource
+    let admin: &FlowToken.Administrator
     
-    // Reference to the signer's authentication account
+    // Declare the signer variable
     let signer: AuthAccount
 
-    // Prepare phase: Borrow the Administrator resource from the signer's storage
-    prepare(signerAccount: AuthAccount) {
-        // Assign the signer's reference to the variable
-        self.signer = signerAccount
-        // Attempt to borrow the Administrator resource from storage
-        self.administratorRef = self.signer.borrow<&FlowToken.Administrator>(from: /storage/newFlowTokenAdmin)
-            ?? panic("You are not authorized to create a new minter")
+    // Prepare step: Borrow the Administrator resource from signer's storage
+    prepare(signerRef: AuthAccount) {
+        // Assign the signer reference to the variable
+        self.signer = signerRef
+        // Borrow the Administrator resource from storage
+        self.admin = self.signer.borrow<&FlowToken.Administrator>(from: /storage/newflowTokenAdmin)
+            ?? panic("You are not authorised!")
     }
 
-    // Execute phase: Create a new minter and save it to storage
+    // Execute step: Create a new minter and save it to storage
     execute {
         // Create a new minter using the createNewMinter function
-        let newMinter <- self.administratorRef.createNewMinter(allowedAmount: allowedAmount)
+        let newMinter <- self.admin.createNewMinter(allowedAmount: _allowedAmount)
 
         // Save the new minter resource to the correct storage path
         self.signer.save(<-newMinter, to: /storage/FlowMinter)
 
         // Log a success message
-        log("New FlowToken minter successfully created")
+        log("created successfully")
     }
 }
